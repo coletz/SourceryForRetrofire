@@ -1,21 +1,22 @@
 Pod::Spec.new do |s|
 
-  s.name         = "Sourcery"
-  s.version      = "0.16.0"
-  s.summary      = "A tool that brings meta-programming to Swift, allowing you to code generate Swift code."
+  s.name         = "SourceryForRetrofire"
+  s.version      = "0.1.0"
+  s.summary      = "A slightly edited version of Sourcery used for RetrofireSwift"
 
   s.description  = <<-DESC
-                 A tool that brings meta-programming to Swift, allowing you to code generate Swift code.
-                   * Featuring daemon mode that allows you to write templates side-by-side with generated code.
-                   * Using SourceKit so you can scan your regular code.
+                 This tool is a fork of Sourcery (https://github.com/krzysztofzablocki/Sourcery) which has been modified to be more similar to 
+                 Java/Kotlin annotations. This fork is made specifically for RetrofireSwift (https://github.com/dcoletto/RetrofireSwift) 
+                 so SourceryForRetrofire will be only able to read RetrofireSwift annotations.
+                 The original Sourcery tools is from Krzysztof Zabłocki, and all credit belongs to him and his wonderful project.
                    DESC
 
-  s.homepage     = "https://github.com/krzysztofzablocki/Sourcery"
-  s.license      = 'MIT'
-  s.author       = { "Krzysztof Zabłocki" => "krzysztof.zablocki@pixle.pl" }
-  s.social_media_url = "https://twitter.com/merowing_"
+  s.homepage     = "https://github.com/dcoletto/SourceryForRetrofire"
+  s.license          = { :type => 'MIT', :file => 'LICENSE' }
+  s.author           = { 'Coletto Dario' => 'dcoletto.sw@gmail.com' }
+  s.social_media_url = 'https://twitter.com/coletzLp'
 
-  s.source       = { :http => "https://github.com/krzysztofzablocki/Sourcery/releases/download/#{s.version}/sourcery-#{s.version}.zip" }
+  s.source           = { :git => 'https://github.com/dcoletto/SourceryForRetrofire.git', :tag => s.version.to_s }
   s.preserve_paths = '*'
   s.exclude_files = '**/file.zip'
 

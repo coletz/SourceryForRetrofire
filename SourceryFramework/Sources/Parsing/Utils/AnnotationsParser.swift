@@ -10,6 +10,17 @@ public typealias Annotations = [String: NSObject]
 
 /// Parser for annotations
 public struct AnnotationsParser {
+    
+    public static let retrofireAnnotations = [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "Path",
+        "Query",
+        "Body"
+    ]
 
     private enum AnnotationType {
         case begin(Annotations)
@@ -183,49 +194,47 @@ public struct AnnotationsParser {
 
     private static func searchForAnnotations(commentLine: String) -> AnnotationType {
         let comment = commentLine.trimmingPrefix("///").trimmingPrefix("//").trimmingPrefix("/**").trimmingPrefix("/*").trimmingPrefix("*").stripped()
-
-        guard comment.hasPrefix("sourcery:") else { return .annotations([:]) }
-
-        if comment.hasPrefix("sourcery:inline:") {
-            return .inlineStart
+        
+        let annotationNameOpt: String? = AnnotationsParser.retrofireAnnotations.first { (annotation) -> Bool in
+            comment.hasPrefix("@\(annotation)")
         }
-
-        let lowerBound: String.Index?
+        
+        guard let annotationName = annotationNameOpt else { return .annotations([:]) }
+        
+        let lowerBound = commentLine.range(of: "@\(annotationName)")?.upperBound
         let upperBound: String.Index?
-        var insideBlock: Bool = false
-        var insideFileBlock: Bool = false
 
-        if comment.hasPrefix("sourcery:begin:") {
-            lowerBound = commentLine.range(of: "sourcery:begin:")?.upperBound
+        if commentLine.hasPrefix("//") || commentLine.hasPrefix("*") {
             upperBound = commentLine.indices.endIndex
-            insideBlock = true
-        } else if comment.hasPrefix("sourcery:end") {
-            return .end
-        } else if comment.hasPrefix("sourcery:file") {
-            lowerBound = commentLine.range(of: "sourcery:file:")?.upperBound
-            upperBound = commentLine.indices.endIndex
-            insideFileBlock = true
         } else {
-            lowerBound = commentLine.range(of: "sourcery:")?.upperBound
-            if commentLine.hasPrefix("//") || commentLine.hasPrefix("*") {
-                upperBound = commentLine.indices.endIndex
-            } else {
-                upperBound = commentLine.range(of: "*/")?.lowerBound
-            }
+            upperBound = commentLine.range(of: "*/")?.lowerBound
         }
-
+        
         if let lowerBound = lowerBound, let upperBound = upperBound {
-            let annotations = AnnotationsParser.parse(line: String(commentLine[lowerBound..<upperBound]))
-            if insideBlock {
-                return .begin(annotations)
-            } else if insideFileBlock {
-                return .file(annotations)
-            } else {
-                return .annotations(annotations)
-            }
+            let annotations = AnnotationsParser.parse(
+                annotationName: annotationName,
+                line: String(commentLine[lowerBound..<upperBound])
+            )
+            return .annotations(annotations)
         } else {
             return .annotations([:])
         }
+    }
+    
+    /// Parses annotations from the given line
+    ///
+    /// - Parameter line: Line to parse.
+    /// - Returns: Dictionary containing all annotations.
+    public static func parse(annotationName: String, line: String) -> Annotations {
+        var annotation = Annotations()
+        
+        if line.contains("=") {
+            let value = line.stripped().trimmingPrefix("=").stripped()
+            annotation[annotationName] = value as NSObject
+        } else {
+            annotation[annotationName] = "" as NSObject
+        }
+        return annotation
     }
 
     /// Parses annotations from the given line
@@ -237,7 +246,8 @@ public struct AnnotationsParser {
             .commaSeparated()
             .map { $0.trimmingCharacters(in: .whitespaces) }
 
-        var namespaces = annotationDefinitions[0].components(separatedBy: ":", excludingDelimiterBetween: (open: "\"'", close: "\"'"))
+        var namespaces = annotationDefinitions[0].components(separatedBy: "@", excludingDelimiterBetween: (open: "\"'", close: "\"'"))
+        
         annotationDefinitions[0] = namespaces.removeLast()
 
         var annotations = Annotations()
