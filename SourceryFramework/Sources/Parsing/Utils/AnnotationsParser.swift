@@ -185,10 +185,6 @@ public struct AnnotationsParser {
                     fileAnnotationsBlock.forEach { annotation in
                         annotations[annotation.key] = annotation.value
                     }
-                    
-                    if annotations.count > 0 {
-                        print("===== \(annotations)")
-                    }
 
                     return Line(content: line.content,
                                 type: type,
