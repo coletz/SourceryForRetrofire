@@ -118,7 +118,7 @@ namespace :release do
   desc 'Create a new release on GitHub, CocoaPods and Homebrew'
   task :new => [:clean, :install_dependencies, :check_environment_variables, :check_docs, :check_ci,  :update_metadata, :generate_internal_boilerplate_code, :tests, :build, :check_versions, :tag_release, :github, :cocoapods, :homebrew]
 
-  def podspec_update_version(version, file = 'Sourcery.podspec')
+  def podspec_update_version(version, file = 'SourceryForRetrofire.podspec')
     # The code is mainly taken from https://github.com/fastlane/fastlane/blob/master/fastlane/lib/fastlane/helper/podspec_helper.rb
     podspec_content = File.read(file)
     version_var_name = 'version'
@@ -128,7 +128,7 @@ namespace :release do
     File.open(file, "w") { |f| f.puts updated_podspec_content }
   end
 
-  def podspec_version(file = 'Sourcery')
+  def podspec_version(file = 'SourceryForRetrofire')
     JSON.parse(`bundle exec pod ipc spec #{file}.podspec`)["version"]
   end
 
@@ -269,9 +269,9 @@ namespace :release do
     `which bundler`
     results << log_result( $?.success?, 'Bundler installed', 'Please install bundler using `gem install bundler` and run `bundle install` first.')
 
-    # Extract version from Sourcery.podspec
+    # Extract version from SourceryForRetrofire.podspec
     version = podspec_version
-    puts "#{'Sourcery.podspec'.ljust(25)} \u{1F449}  #{version}"
+    puts "#{'SourceryForRetrofire.podspec'.ljust(25)} \u{1F449}  #{version}"
 
     # Check if entry present in CHANGELOG
     changelog_entry = system(%Q{grep -q '^## #{Regexp.quote(version)}$' CHANGELOG.md})
@@ -316,7 +316,7 @@ namespace :release do
     command_line_tool_update_version(new_version)
 
     print "Now review and type [Y/n] to commit and push or cancel the changes. "
-    manual_commit(["CHANGELOG.md", "Sourcery.podspec", "Sourcery.xcodeproj/project.pbxproj", "Sourcery/Version.swift"], "docs: update metadata for #{new_version} release")
+    manual_commit(["CHANGELOG.md", "SourceryForRetrofire.podspec", "Sourcery.xcodeproj/project.pbxproj", "Sourcery/Version.swift"], "docs: update metadata for #{new_version} release")
     git_push
   end
 
@@ -371,7 +371,7 @@ namespace :release do
   desc 'pod trunk push Sourcery to CocoaPods'
   task :cocoapods do
     print_info "Pushing pod to CocoaPods Trunk"
-    sh 'bundle exec pod trunk push Sourcery.podspec --allow-warnings'
+    sh 'bundle exec pod trunk push SourceryForRetrofire.podspec --allow-warnings'
   end
 
   desc 'send a PR to homebrew'
