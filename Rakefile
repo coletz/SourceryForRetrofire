@@ -115,6 +115,9 @@ end
 ## [ Release ] ##########################################################
 
 namespace :release do
+  desc 'A shorter version of the new task which only does some of its stuff'
+  task :new_short => [:clean, :install_dependencies, :generate_internal_boilerplate_code, :tests, :build, :check_versions, :tag_release, :cocoapods]
+
   desc 'Create a new release on GitHub, CocoaPods and Homebrew'
   task :new => [:clean, :install_dependencies, :check_environment_variables, :check_docs, :check_ci,  :update_metadata, :generate_internal_boilerplate_code, :tests, :build, :check_versions, :tag_release, :github, :cocoapods, :homebrew]
 
