@@ -185,6 +185,10 @@ public struct AnnotationsParser {
                     fileAnnotationsBlock.forEach { annotation in
                         annotations[annotation.key] = annotation.value
                     }
+                    
+                    if annotations.count > 0 {
+                        print("===== \(annotations)")
+                    }
 
                     return Line(content: line.content,
                                 type: type,
@@ -284,12 +288,13 @@ public struct AnnotationsParser {
     /// - Returns: Dictionary containing all annotations.
     public static func parseRest(annotationName: String, line: String) -> Annotations {
         var annotation = Annotations()
+        let strippedAnnotation = annotationName.trimmingPrefix("@")
         
         if line.contains("=") {
             let value = line.stripped().trimmingPrefix("=").stripped()
-            annotation[annotationName] = value as NSObject
+            annotation[strippedAnnotation] = value as NSObject
         } else {
-            annotation[annotationName] = "" as NSObject
+            annotation[strippedAnnotation] = NSNumber(value: true)
         }
         return annotation
     }
