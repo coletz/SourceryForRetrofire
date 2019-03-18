@@ -11,15 +11,16 @@ public typealias Annotations = [String: NSObject]
 /// Parser for annotations
 public struct AnnotationsParser {
     
-    public static let retrofireAnnotations = [
-        "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE",
-        "Path",
-        "Query",
-        "Body"
+    public static let retrofireAnnotations: [String] = [
+        "sourcery:",
+        "@GET",
+        "@POST",
+        "@PUT",
+        "@PATCH",
+        "@DELETE",
+        "@Path",
+        "@Query",
+        "@Body"
     ]
 
     private enum AnnotationType {
@@ -191,17 +192,25 @@ public struct AnnotationsParser {
                                 blockAnnotations: annotationsBlock ?? [:])
                 }
     }
-
+    
     private static func searchForAnnotations(commentLine: String) -> AnnotationType {
+        if commentLine.contains(AnnotationsParser.retrofireAnnotations.first!) {
+            return searchForSourceryAnnotations(commentLine: commentLine)
+        } else {
+            return searchForRestAnnotations(commentLine: commentLine)
+        }
+    }
+
+    private static func searchForRestAnnotations(commentLine: String) -> AnnotationType {
         let comment = commentLine.trimmingPrefix("///").trimmingPrefix("//").trimmingPrefix("/**").trimmingPrefix("/*").trimmingPrefix("*").stripped()
         
         let annotationNameOpt: String? = AnnotationsParser.retrofireAnnotations.first { (annotation) -> Bool in
-            comment.hasPrefix("@\(annotation)")
+            comment.hasPrefix("\(annotation)")
         }
         
         guard let annotationName = annotationNameOpt else { return .annotations([:]) }
         
-        let lowerBound = commentLine.range(of: "@\(annotationName)")?.upperBound
+        let lowerBound = commentLine.range(of: "\(annotationName)")?.upperBound
         let upperBound: String.Index?
 
         if commentLine.hasPrefix("//") || commentLine.hasPrefix("*") {
@@ -211,7 +220,7 @@ public struct AnnotationsParser {
         }
         
         if let lowerBound = lowerBound, let upperBound = upperBound {
-            let annotations = AnnotationsParser.parse(
+            let annotations = AnnotationsParser.parseRest(
                 annotationName: annotationName,
                 line: String(commentLine[lowerBound..<upperBound])
             )
@@ -221,11 +230,59 @@ public struct AnnotationsParser {
         }
     }
     
+    private static func searchForSourceryAnnotations(commentLine: String) -> AnnotationType {
+        let comment = commentLine.trimmingPrefix("///").trimmingPrefix("//").trimmingPrefix("/**").trimmingPrefix("/*").trimmingPrefix("*").stripped()
+        
+        guard comment.hasPrefix("sourcery:") else { return .annotations([:]) }
+        
+        if comment.hasPrefix("sourcery:inline:") {
+            return .inlineStart
+        }
+        
+        let lowerBound: String.Index?
+        let upperBound: String.Index?
+        var insideBlock: Bool = false
+        var insideFileBlock: Bool = false
+        
+        if comment.hasPrefix("sourcery:begin:") {
+            lowerBound = commentLine.range(of: "sourcery:begin:")?.upperBound
+            upperBound = commentLine.indices.endIndex
+            insideBlock = true
+        } else if comment.hasPrefix("sourcery:end") {
+            return .end
+        } else if comment.hasPrefix("sourcery:file") {
+            lowerBound = commentLine.range(of: "sourcery:file:")?.upperBound
+            upperBound = commentLine.indices.endIndex
+            insideFileBlock = true
+        } else {
+            lowerBound = commentLine.range(of: "sourcery:")?.upperBound
+            if commentLine.hasPrefix("//") || commentLine.hasPrefix("*") {
+                upperBound = commentLine.indices.endIndex
+            } else {
+                upperBound = commentLine.range(of: "*/")?.lowerBound
+            }
+        }
+        
+        if let lowerBound = lowerBound, let upperBound = upperBound {
+            let annotations = AnnotationsParser.parseSourcery(line: String(commentLine[lowerBound..<upperBound]))
+            if insideBlock {
+                return .begin(annotations)
+            } else if insideFileBlock {
+                return .file(annotations)
+            } else {
+                return .annotations(annotations)
+            }
+        } else {
+            return .annotations([:])
+        }
+    }
+    
     /// Parses annotations from the given line
     ///
+    /// - Parameter annotationName: Name of the annotation that needs to be parsed
     /// - Parameter line: Line to parse.
     /// - Returns: Dictionary containing all annotations.
-    public static func parse(annotationName: String, line: String) -> Annotations {
+    public static func parseRest(annotationName: String, line: String) -> Annotations {
         var annotation = Annotations()
         
         if line.contains("=") {
@@ -241,28 +298,27 @@ public struct AnnotationsParser {
     ///
     /// - Parameter line: Line to parse.
     /// - Returns: Dictionary containing all annotations.
-    public static func parse(line: String) -> Annotations {
+    public static func parseSourcery(line: String) -> Annotations {
         var annotationDefinitions = line.trimmingCharacters(in: .whitespaces)
             .commaSeparated()
             .map { $0.trimmingCharacters(in: .whitespaces) }
-
-        var namespaces = annotationDefinitions[0].components(separatedBy: "@", excludingDelimiterBetween: (open: "\"'", close: "\"'"))
         
+        var namespaces = annotationDefinitions[0].components(separatedBy: ":", excludingDelimiterBetween: (open: "\"'", close: "\"'"))
         annotationDefinitions[0] = namespaces.removeLast()
-
+        
         var annotations = Annotations()
         annotationDefinitions.forEach { annotation in
             let parts = annotation
                 .components(separatedBy: "=", excludingDelimiterBetween: ("", ""))
                 .map({ $0.trimmingCharacters(in: .whitespaces) })
-
+            
             if let name = parts.first, !name.isEmpty {
-
+                
                 guard parts.count > 1, var value = parts.last, value.isEmpty == false else {
                     append(key: name, value: NSNumber(value: true), to: &annotations)
                     return
                 }
-
+                
                 if let number = Float(value) {
                     append(key: name, value: NSNumber(value: number), to: &annotations)
                 } else {
@@ -270,7 +326,7 @@ public struct AnnotationsParser {
                         value = String(value[value.index(after: value.startIndex) ..< value.index(before: value.endIndex)])
                         value = value.trimmingCharacters(in: .whitespaces)
                     }
-
+                    
                     guard let data = (value as String).data(using: .utf8),
                         let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
                             append(key: name, value: value as NSString, to: &annotations)
@@ -286,7 +342,7 @@ public struct AnnotationsParser {
                 }
             }
         }
-
+        
         if namespaces.isEmpty {
             return annotations
         } else {

@@ -14,9 +14,9 @@ import SourceKittenFramework
 class AnnotationsParserSpec: QuickSpec {
     override func spec() {
         describe("AnnotationsParser") {
-            describe("parse(line:)") {
+            describe("parseSourcery(line:)") {
                 func parse(_ content: String) -> Annotations {
-                    return AnnotationsParser.parse(line: content)
+                    return AnnotationsParser.parseSourcery(line: content)
                 }
 
                 it("extracts single annotation") {
