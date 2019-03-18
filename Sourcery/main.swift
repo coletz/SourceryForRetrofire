@@ -116,7 +116,7 @@ func runCLI() {
             if !yamlPath.exists {
                 Log.info("No config file provided or it does not exist. Using command line arguments.")
                 let args = args.joined(separator: ",")
-                let arguments = AnnotationsParser.parse(line: args)
+                let arguments = AnnotationsParser.parseSourcery(line: args)
                 configuration = Configuration(sources: Paths(include: sources, exclude: excludeSources) ,
                                               templates: Paths(include: templates, exclude: excludeTemplates),
                                               output: output.string.isEmpty ? "." : output,
