@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "SourceryForRetrofire"
-  s.version      = "0.16.0-sfr-1"
+  s.version      = "0.16.0-sfr-2"
   s.summary      = "A slightly edited version of Sourcery used for RetrofireSwift"
 
   s.description  = <<-DESC
