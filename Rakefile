@@ -66,6 +66,7 @@ end
 task :build do
   print_info "Building project"
   xcrun %Q(xcodebuild -workspace Sourcery.xcworkspace -scheme Sourcery-Release -sdk macosx -derivedDataPath #{BUILD_DIR}tmp/)
+  print_info "BUILD_DIR: #{BUILD_DIR}"
   sh %Q(rm -fr bin/Sourcery.app)
   `mv #{BUILD_DIR}tmp/Build/Products/Release/Sourcery.app bin/`
   sh %Q(rm -fr #{BUILD_DIR}tmp/)

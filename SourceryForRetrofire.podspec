@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "SourceryForRetrofire"
-  s.version      = "0.16.0-sfr-2"
+  s.version      = "0.16.0-sfr-3"
   s.summary      = "A slightly edited version of Sourcery used for RetrofireSwift"
 
   s.description  = <<-DESC
@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.social_media_url = 'https://twitter.com/coletzLp'
 
   s.source           = { :git => 'https://github.com/dcoletto/SourceryForRetrofire.git', :tag => s.version.to_s }
-  s.preserve_paths = '*'
+  s.preserve_paths = 'bin/**/*'
   s.exclude_files = '**/file.zip'
 
 end
