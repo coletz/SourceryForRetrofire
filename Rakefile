@@ -284,7 +284,7 @@ namespace :release do
     results << log_result(version == project_version, "Project version correct", "Please update Current Project Version in Build Settings to #{version}")
 
     # Check if Command Line Tool version match podspec version
-    results << log_result(version == command_line_tool_version, "Command line tool version correct", "Please update current version in Sourcery/Version.swift to #{version}")
+    #results << log_result(version == command_line_tool_version, "Command line tool version correct", "Please update current version in Sourcery/Version.swift to #{version}")
 
     exit 1 unless results.all?
 
