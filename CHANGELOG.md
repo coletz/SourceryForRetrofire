@@ -1,8 +1,10 @@
 # Sourcery CHANGELOG
 
 ---
-## Master
+## 0.16.0-sfr-1
 
+- Added ability to parse annotations that starts with `@` instead of `sourcery:`
+- Currently accepted annotations are: `@GET`, `@POST`, `@PUT`, `@PATCH`, `@DELETE`, `@Path`, `@Query`, `@Body`; 
 
 ## 0.16.0
 
