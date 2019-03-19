@@ -90,9 +90,10 @@ task :generate_internal_boilerplate_code => [:build, :run_sourcery, :clean] do
     "SourceryRuntime/Sources/Typed.generated.swift",
     "SourceryTests/Models/TypedSpec.generated.swift"
   ]
-  print_info "Now review and type [Y/n] to commit and push or cancel the changes."
+  print_info "Now review and type [Y/n] to commit or cancel the changes."
   print "Updated files:\n#{generated_files.join("\n")}\n"
   manual_commit(generated_files, "update internal boilerplate code.")
+  :upload_app
 end
 
 ## [ Docs ] ##########################################################
@@ -116,8 +117,8 @@ end
 ## [ Release ] ##########################################################
 
 namespace :release do
-  desc 'A shorter version of the new task which only does some of its stuff'
-  task :new_short => [:clean, :install_dependencies, :generate_internal_boilerplate_code, :tests, :build, :check_versions, :tag_release, :cocoapods]
+  desc 'Build everything then push to Github and create a new release of SourceryForRetrofire on CocoaPods'
+  task :new_sfr => [:clean, :install_dependencies, :generate_internal_boilerplate_code, :tests, :build, :check_versions, :tag_release, :cocoapods]
 
   desc 'Create a new release on GitHub, CocoaPods and Homebrew'
   task :new => [:clean, :install_dependencies, :check_environment_variables, :check_docs, :check_ci,  :update_metadata, :generate_internal_boilerplate_code, :tests, :build, :check_versions, :tag_release, :github, :cocoapods, :homebrew]
@@ -294,6 +295,13 @@ namespace :release do
 
     print "Release version #{version} [Y/n]? "
     exit 2 unless (STDIN.gets.chomp == 'Y')
+  end
+
+  desc "Commit and push builded binary (Sourcery.app)"
+  task :upload_app => [:check_versions] do
+    print_info "Adding Sourcery.app, type [Y/n] to commit and push or cancel the changes."
+    manual_commit(["bin/Sourcery.app/"], "Compiled latest app version (#{podspec_version})")
+    #git_push
   end
 
   desc 'Updates metadata for the new release'
