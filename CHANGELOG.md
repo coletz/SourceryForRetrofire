@@ -1,8 +1,10 @@
-# Sourcery CHANGELOG
+# Sourcery/SourceryForRetrofire CHANGELOG
 
 ---
-## 0.16.0-sfr-4
+## 0.16.0-sfr-5
 
+- First working release for SourceryForRetrofire!
+- SourceryForRetrofire aims to provide annotation which are more similar to Java/Kotlin annotations
 - Added ability to parse annotations that starts with `@` instead of `sourcery:`
 - Currently accepted annotations are: `@GET`, `@POST`, `@PUT`, `@PATCH`, `@DELETE`, `@Path`, `@Query`, `@Body`; 
 
