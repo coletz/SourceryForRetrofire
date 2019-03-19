@@ -117,7 +117,7 @@ end
 
 namespace :release do
   desc 'Build everything then push to Github and create a new release of SourceryForRetrofire on CocoaPods'
-  task :new_sfr => [:clean, :install_dependencies, :generate_internal_boilerplate_code, :upload_app :tests, :build, :check_versions, :tag_release, :cocoapods]
+  task :new_sfr => [:clean, :install_dependencies, :generate_internal_boilerplate_code, :upload_app, :tests, :build, :check_versions, :tag_release, :cocoapods]
 
   desc 'Create a new release on GitHub, CocoaPods and Homebrew'
   task :new => [:clean, :install_dependencies, :check_environment_variables, :check_docs, :check_ci,  :update_metadata, :generate_internal_boilerplate_code, :tests, :build, :check_versions, :tag_release, :github, :cocoapods, :homebrew]
