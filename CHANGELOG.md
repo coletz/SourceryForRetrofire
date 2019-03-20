@@ -1,6 +1,10 @@
 # Sourcery/SourceryForRetrofire CHANGELOG
 
 ---
+## 0.16.0-sfr-6
+
+-  `@Header` is now an accepted annotation
+
 ## 0.16.0-sfr-5
 
 - First working release for SourceryForRetrofire!

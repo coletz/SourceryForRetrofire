@@ -20,7 +20,8 @@ public struct AnnotationsParser {
         "@DELETE",
         "@Path",
         "@Query",
-        "@Body"
+        "@Body",
+        "@Header"
     ]
 
     private enum AnnotationType {
